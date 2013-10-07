@@ -22,6 +22,8 @@ SET( headers
 		PyVtk.h
 		VtkModule.h
 		vtkGenericOpenGLRenderWindow.h
+		# NOTE: the weird name for this file is needed because VtkRenderPass.h
+		# clashes with the VTK file vtkRenderPass.h
 		oVtkRenderPass.h
 		VtkAttachPoint.h
 		omegaVtkPythonApi.h
