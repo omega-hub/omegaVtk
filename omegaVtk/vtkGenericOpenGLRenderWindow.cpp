@@ -28,7 +28,7 @@
  * All rights reserved.
  * See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
  *************************************************************************************************/
-#include "omegaVtk/vtkGenericOpenGLRenderWindow.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 #include "vtkOpenGLRenderer.h"

@@ -22,7 +22,7 @@ SET( headers
 		PyVtk.h
 		VtkModule.h
 		vtkGenericOpenGLRenderWindow.h
-		VtkRenderPass.h
+		oVtkRenderPass.h
 		VtkAttachPoint.h
 		omegaVtkPythonApi.h
         ) 

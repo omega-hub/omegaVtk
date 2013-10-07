@@ -26,9 +26,9 @@
  *************************************************************************************************/
 #include <vtkPython.h>
 
-#include "omegaVtk/PyVtk.h"
+#include "PyVtk.h"
 #include "omega/PythonInterpreter.h"
-#include "omegaVtk/VtkModule.h"
+#include "VtkModule.h"
 #include "omega/PythonInterpreterWrapper.h"
 
 using namespace omegaVtk;

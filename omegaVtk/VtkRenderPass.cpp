@@ -38,8 +38,8 @@
 #include <omegaGl.h>
 
 #include "CustomDepthPeelingPass.h"
-#include "omegaVtk/VtkRenderPass.h"
-#include "omegaVtk/vtkGenericOpenGLRenderWindow.h"
+#include "oVtkRenderPass.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 
 
 using namespace omegaVtk;

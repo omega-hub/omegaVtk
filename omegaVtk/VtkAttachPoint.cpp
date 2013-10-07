@@ -26,8 +26,8 @@
  *************************************************************************************************/
 #include <vtkMatrix4x4.h>
 
-#include "omegaVtk/VtkModule.h"
-#include "omegaVtk/VtkAttachPoint.h"
+#include "VtkModule.h"
+#include "VtkAttachPoint.h"
 
 
 using namespace omega;

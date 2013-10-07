@@ -27,9 +27,9 @@
 #ifndef __VTK_MODULE_H__
 #define __VTK_MODULE_H__
 
-#include "omegaVtk/ovtkbase.h"
-#include "omegaVtk/VtkRenderPass.h"
-#include "omegaVtk/VtkAttachPoint.h"
+#include "ovtkbase.h"
+#include "oVtkRenderPass.h"
+#include "VtkAttachPoint.h"
 
 #include "omega/osystem.h"
 //#include "omega/Renderer.h"

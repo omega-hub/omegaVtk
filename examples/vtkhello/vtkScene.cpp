@@ -31,7 +31,7 @@
 
 #include <omega.h>
 #include <omegaToolkit.h>
-#include <omegaVtk.h>
+#include <omegaVtk/omegaVtk.h>
 
 using namespace omega;
 using namespace omegaToolkit;

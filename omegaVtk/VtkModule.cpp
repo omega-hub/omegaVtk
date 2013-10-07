@@ -31,9 +31,9 @@
 
 //#include "omegaVtk/PyVtk.h"
 #include "omega/PythonInterpreter.h"
-#include "omegaVtk/VtkModule.h"
-#include "omegaVtk/VtkRenderPass.h"
-#include "omegaVtk/VtkAttachPoint.h"
+#include "VtkModule.h"
+#include "VtkRenderPass.h"
+#include "VtkAttachPoint.h"
 
 using namespace omega;
 using namespace omegaVtk;
