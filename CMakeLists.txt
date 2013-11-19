@@ -7,3 +7,6 @@ include(${VTK_USE_FILE})
 
 add_subdirectory(omegaVtk)
 add_subdirectory(examples/vtkhello)
+
+# Pass the vtk include dirs as a cache variable, so other modules can use it.
+set(VTK_INCLUDES ${VTK_INCLUDE_DIRS} CACHE INTERNAL "")
