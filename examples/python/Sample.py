@@ -37,5 +37,6 @@ vtkAttachProp(actor, vtkNode)
 
 l = vtk.vtkLight()
 vtkAddLight(l)
-l.PositionalOn()
+#l.PositionalOn()
 l.SetPosition(0, 4, 0)
+l.SetColor(1,1,1)

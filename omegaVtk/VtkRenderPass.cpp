@@ -1,29 +1,38 @@
-/**************************************************************************************************
+/******************************************************************************
  * THE OMEGA LIB PROJECT
- *-------------------------------------------------------------------------------------------------
- * Copyright 2010-2011		Electronic Visualization Laboratory, University of Illinois at Chicago
+ *-----------------------------------------------------------------------------
+ * Copyright 2010-2014		Electronic Visualization Laboratory, 
+ *							University of Illinois at Chicago
  * Authors:										
  *  Alessandro Febretti		febret@gmail.com
- *-------------------------------------------------------------------------------------------------
- * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
+ *-----------------------------------------------------------------------------
+ * Copyright (c) 2010-2013, Electronic Visualization Laboratory,  
+ * University of Illinois at Chicago
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, are permitted 
- * provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
  * 
- * Redistributions of source code must retain the above copyright notice, this list of conditions 
- * and the following disclaimer. Redistributions in binary form must reproduce the above copyright 
- * notice, this list of conditions and the following disclaimer in the documentation and/or other 
- * materials provided with the distribution. 
+ * Redistributions of source code must retain the above copyright notice, this 
+ * list of conditions and the following disclaimer. Redistributions in binary 
+ * form must reproduce the above copyright notice, this list of conditions and 
+ * the following disclaimer in the documentation and/or other materials provided 
+ * with the distribution. 
  * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE  GOODS OR SERVICES; LOSS OF 
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *************************************************************************************************/
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO THE 
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE  GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *-----------------------------------------------------------------------------
+ * What's in this file
+ *	The implementation of an omegalib render pass that wraps the VTK drawing
+ *  engine.
+ ******************************************************************************/
 #include <vtkCamera.h>
 #include <vtkLightsPass.h>
 #include <vtkOpenGLRenderer.h>
@@ -44,140 +53,142 @@
 
 using namespace omegaVtk;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 VtkRenderPass::VtkRenderPass(Renderer* client, const String& name): 
-	RenderPass(client, name, -10)
+    RenderPass(client, name, -10)
 {
-	resetPropQueues();
+    resetPropQueues();
+
+    // Setup renderer and render window
+    // NOTE: Renderer needs to be created here (instead of initialization func)
+    // because it is needed for some python calls (i.e. vtkAddLight)
+    myRenderer = vtkOpenGLRenderer::New();
+    myRenderer->UseDepthPeelingOn();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 VtkRenderPass::~VtkRenderPass()
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 vtkOpenGLRenderer* VtkRenderPass::getRenderer() 
 {
-	return myRenderer; 
+    return myRenderer; 
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 void VtkRenderPass::initialize()
 {
-	RenderPass::initialize();
+    RenderPass::initialize();
 
-	// Setup renderer and render window
-	myRenderer = vtkOpenGLRenderer::New();
-	myRenderer->UseDepthPeelingOn();
+    myRenderWindow = vtkGenericOpenGLRenderWindow::New();
+    myRenderWindow->MakeCurrent();
+    myRenderWindow->OpenGLInit();
+    myRenderWindow->AddRenderer(myRenderer);
+    
+    myOpaquePass = vtkOpaquePass::New();
+    myDepthPeelingPass = CustomDepthPeelingPass::New();
+    myTranslucentPass = vtkTranslucentPass::New();
+    myOverlayPass = vtkOverlayPass::New();
+    myVolumetricPass = vtkVolumetricPass::New();
+    myLightsPass = vtkLightsPass::New();
 
-	myRenderWindow = vtkGenericOpenGLRenderWindow::New();
-	myRenderWindow->MakeCurrent();
-	myRenderWindow->OpenGLInit();
-	myRenderWindow->AddRenderer(myRenderer);
-	
-	myOpaquePass = vtkOpaquePass::New();
-	myDepthPeelingPass = CustomDepthPeelingPass::New();
-	myTranslucentPass = vtkTranslucentPass::New();
-	myOverlayPass = vtkOverlayPass::New();
-	myVolumetricPass = vtkVolumetricPass::New();
-	myLightsPass = vtkLightsPass::New();
+    myRenderState = new vtkRenderState(myRenderer);
 
-	myRenderState = new vtkRenderState(myRenderer);
-
-	//resetPropQueues();
-	myDepthPeelingPass->SetTranslucentPass(myTranslucentPass);
-	//myTranslucentPass->SetTranslucentPass(vtkTranslucentPass::New());
+    //resetPropQueues();
+    myDepthPeelingPass->SetTranslucentPass(myTranslucentPass);
+    //myTranslucentPass->SetTranslucentPass(vtkTranslucentPass::New());
 }
 
 Lock sLock;
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 void VtkRenderPass::queueProp(vtkProp* actor, QueueType queue)
 {
 sLock.lock();
-	oassert(queue < NumQueues);
+    oassert(queue < NumQueues);
 
-	if(myPropQueueSize[queue] < MaxQueuedProps)
-	{
-		myPropQueue[queue][myPropQueueSize[queue]++] = actor;
-	}
-	//myRenderer->AddViewProp(actor);
+    if(myPropQueueSize[queue] < MaxQueuedProps)
+    {
+        myPropQueue[queue][myPropQueueSize[queue]++] = actor;
+    }
+    //myRenderer->AddViewProp(actor);
 sLock.unlock();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 void VtkRenderPass::resetPropQueues()
 {
-	for(int i = 0; i < NumQueues; i++) myPropQueueSize[i] = 0;
-	//myRenderer->RemoveAllViewProps();
+    for(int i = 0; i < NumQueues; i++) myPropQueueSize[i] = 0;
+    //myRenderer->RemoveAllViewProps();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 void VtkRenderPass::render(Renderer* mng, const DrawContext& context)
 {
-	if(context.task == DrawContext::SceneDrawTask)
-	{
-		myRenderWindow->SetSize(context.tile->pixelSize[0], context.tile->pixelSize[1]);
-		//myRenderWindow->SetTileViewport(context
-		//RenderState state;
-		//state.pass = this;
-		//state.flags = VtkRenderPass::RenderVtk;
-		//state.renderer = mng->getRenderer();
+    if(context.task == DrawContext::SceneDrawTask)
+    {
+        myRenderWindow->SetSize(context.tile->pixelSize[0], context.tile->pixelSize[1]);
+        //myRenderWindow->SetTileViewport(context
+        //RenderState state;
+        //state.pass = this;
+        //state.flags = VtkRenderPass::RenderVtk;
+        //state.renderer = mng->getRenderer();
 
-		//mng->getRootNode()->draw(&state);
+        //mng->getRootNode()->draw(&state);
 
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadMatrixd(context.projection.data());
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadMatrixd(context.projection.data());
 
-		// For scene node drawing, we are not using the gl matrix stack, we are using our own transforms,
-		// stored inside the scene nodes. So, create a new, clean transform on the stack.
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadMatrixd(context.modelview.data());
+        // For scene node drawing, we are not using the gl matrix stack, we are using our own transforms,
+        // stored inside the scene nodes. So, create a new, clean transform on the stack.
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadMatrixd(context.modelview.data());
 
-		glPushAttrib(GL_ALL_ATTRIB_BITS);
-		glEnable(GL_NORMALIZE);
-		glDisable(GL_BLEND);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_LIGHTING);
-		glUseProgram(0);
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        glEnable(GL_NORMALIZE);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_LIGHTING);
+        glUseProgram(0);
 
-		//myRenderer->Render();
-
-sLock.lock();
-		myLightsPass->Render(myRenderState);
-		myRenderState->SetPropArrayAndCount(myPropQueue[QueueOpaque], myPropQueueSize[QueueOpaque]);
-		myOpaquePass->Render(myRenderState);
-sLock.unlock();
-
-		glEnable(GL_BLEND);
-		glEnable(GL_DEPTH_TEST);
-		//glBlendFunc(GL_ONE, GL_ONE);
-		//glDisable(GL_DEPTH_TEST);
+        //myRenderer->Render();
 
 sLock.lock();
-		myRenderState->SetPropArrayAndCount(myPropQueue[QueueTransparent], myPropQueueSize[QueueTransparent]);
-		//myTranslucentPass->Render(myRenderState);
-		myDepthPeelingPass->Render(myRenderState);
+        myLightsPass->Render(myRenderState);
+        myRenderState->SetPropArrayAndCount(myPropQueue[QueueOpaque], myPropQueueSize[QueueOpaque]);
+        myOpaquePass->Render(myRenderState);
 sLock.unlock();
-	
-		// Volume rendering not supported for now: it requires forwarding to vtk information
-		// about the view through the renderer active camera (vtkCamera) and also information
-		// about the viewport. This is doable but will probably require a custom version of
-		// vtkCamera and vtkRenderer
-		//myVolumetricPass->Render(myRenderState);
-	
+
+        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        //glBlendFunc(GL_ONE, GL_ONE);
+        //glDisable(GL_DEPTH_TEST);
+
 sLock.lock();
-		myRenderState->SetPropArrayAndCount(myPropQueue[QueueOverlay], myPropQueueSize[QueueOverlay]);
-		myOverlayPass->Render(myRenderState);
+        myRenderState->SetPropArrayAndCount(myPropQueue[QueueTransparent], myPropQueueSize[QueueTransparent]);
+        //myTranslucentPass->Render(myRenderState);
+        myDepthPeelingPass->Render(myRenderState);
+sLock.unlock();
+    
+        // Volume rendering not supported for now: it requires forwarding to vtk information
+        // about the view through the renderer active camera (vtkCamera) and also information
+        // about the viewport. This is doable but will probably require a custom version of
+        // vtkCamera and vtkRenderer
+        //myVolumetricPass->Render(myRenderState);
+    
+sLock.lock();
+        myRenderState->SetPropArrayAndCount(myPropQueue[QueueOverlay], myPropQueueSize[QueueOverlay]);
+        myOverlayPass->Render(myRenderState);
 sLock.unlock();
 
-		glPopAttrib();
+        glPopAttrib();
 
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-	}
+        glPopMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+    }
 }
