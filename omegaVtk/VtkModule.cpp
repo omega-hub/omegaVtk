@@ -32,7 +32,7 @@
 //#include "omegaVtk/PyVtk.h"
 #include "omega/PythonInterpreter.h"
 #include "VtkModule.h"
-#include "VtkRenderPass.h"
+//#include "VtkRenderPass.h"
 #include "VtkAttachPoint.h"
 
 using namespace omega;
