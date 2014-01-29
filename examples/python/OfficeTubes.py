@@ -1,7 +1,9 @@
 # This example demonstrates the use of streamlines generated from seeds, 
 # combined with a tube filter to create several streamtubes.
+from omegaVtk import *
+vtkModule = VtkModule.createAndInitialize()
 import vtk
-import ovtk
+
 from vtk.util.colors import *
 
 # We read a data file the is a CFD analysis of airflow in an office
@@ -10,7 +12,7 @@ from vtk.util.colors import *
 # diagonal of the bounding box. This is useful for normalizing the
 # data.
 reader = vtk.vtkStructuredGridReader()
-reader.SetFileName(ovtk.findFile("/vtk/data/office.binary.vtk"))
+reader.SetFileName(ofindFile("data/office.binary.vtk"))
 reader.Update()
 
 length = reader.GetOutput().GetLength()
@@ -259,25 +261,28 @@ outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
 
-ovtk.addActor(table1Actor)
-ovtk.addActor(table2Actor)
-ovtk.addActor(FilingCabinet1Actor)
-ovtk.addActor(FilingCabinet2Actor)
-ovtk.addActor(bookshelf1TopActor)
-ovtk.addActor(bookshelf1BottomActor)
-ovtk.addActor(bookshelf1FrontActor)
-ovtk.addActor(bookshelf1BackActor)
-ovtk.addActor(bookshelf1LHSActor)
-ovtk.addActor(bookshelf1RHSActor)
-ovtk.addActor(bookshelf2TopActor)
-ovtk.addActor(bookshelf2BottomActor)
-ovtk.addActor(bookshelf2FrontActor)
-ovtk.addActor(bookshelf2BackActor)
-ovtk.addActor(bookshelf2LHSActor)
-ovtk.addActor(bookshelf2RHSActor)
-ovtk.addActor(windowActor)
-ovtk.addActor(outletActor)
-ovtk.addActor(inletActor)
-ovtk.addActor(outlineActor)
-ovtk.addActor(streamTubeActor)
+vtkNode = SceneNode.create("vtkNode")
+vtkNode.setPosition(Vector3(0, 0, 0))
+
+vtkAttachProp(table1Actor, vtkNode)
+vtkAttachProp(table2Actor, vtkNode)
+vtkAttachProp(FilingCabinet1Actor, vtkNode)
+vtkAttachProp(FilingCabinet2Actor, vtkNode)
+vtkAttachProp(bookshelf1TopActor, vtkNode)
+vtkAttachProp(bookshelf1BottomActor, vtkNode)
+vtkAttachProp(bookshelf1FrontActor, vtkNode)
+vtkAttachProp(bookshelf1BackActor, vtkNode)
+vtkAttachProp(bookshelf1LHSActor, vtkNode)
+vtkAttachProp(bookshelf1RHSActor, vtkNode)
+vtkAttachProp(bookshelf2TopActor, vtkNode)
+vtkAttachProp(bookshelf2BottomActor, vtkNode)
+vtkAttachProp(bookshelf2FrontActor, vtkNode)
+vtkAttachProp(bookshelf2BackActor, vtkNode)
+vtkAttachProp(bookshelf2LHSActor, vtkNode)
+vtkAttachProp(bookshelf2RHSActor, vtkNode)
+vtkAttachProp(windowActor, vtkNode)
+vtkAttachProp(outletActor, vtkNode)
+vtkAttachProp(inletActor, vtkNode)
+vtkAttachProp(outlineActor, vtkNode)
+vtkAttachProp(streamTubeActor, vtkNode)
 
