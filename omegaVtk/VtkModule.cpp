@@ -41,7 +41,7 @@ using namespace omegaVtk;
 VtkModule* VtkModule::myInstance = NULL;
 
 #if defined(OMEGA_TOOL_VS10) || defined(OMEGA_TOOL_VS9)
-#define VTK_LIBRARY_DIR_POSTFIX "/Release"
+#define VTK_LIBRARY_DIR_POSTFIX "/Debug"
 #else
 #define VTK_LIBRARY_DIR_POSTFIX 
 #endif

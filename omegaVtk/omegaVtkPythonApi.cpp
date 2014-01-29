@@ -26,7 +26,7 @@
  *************************************************************************************************/
 #include <vtkPython.h>
 
-#include "PyVtk.h"
+#include "PyVTKObject.h"
 #include "omega/PythonInterpreter.h"
 #include "VtkModule.h"
 #include "omega/PythonInterpreterWrapper.h"
