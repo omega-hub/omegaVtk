@@ -4,7 +4,7 @@ The omegaVtk module makes it possible to render VTK visualization pipelines (htt
 
 
 ### How To Install
-This module ia tested with vtk 5.10. Download and build vtk 5.10 from here: http://www.vtk.org/VTK/resources/software.html#previous
+This module is tested with vtk 5.10. Download and build vtk 5.10 from here: http://www.vtk.org/VTK/resources/software.html#previous
 The module will probably work with vtk 6.0 but has not been tested with that version yet.
 
 After enabling the module in the omegalib CMake options, the module will be downloaded and will look up for vtk automatically.
