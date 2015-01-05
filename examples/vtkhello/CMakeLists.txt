@@ -4,4 +4,4 @@ target_link_libraries(vtkhello
 	omega 
 	omegaToolkit
     omegaVtk
-	vtkRendering)
+	${VTK_LIBRARIES})

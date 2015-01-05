@@ -399,8 +399,10 @@ void CustomDepthPeelingPass::Render(const vtkRenderState *s)
     
     if(l>1) // some higher layer, we allocated some tex unit in RenderPeel()
       {
-      vtkTextureUnitManager *m=
-        this->Prog->GetContext()->GetTextureUnitManager();
+        vtkOpenGLRenderWindow *context
+            = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
+        vtkTextureUnitManager *m =
+            context->GetTextureUnitManager();
       m->Free(this->ShadowTexUnit);
       m->Free(this->OpaqueShadowTexUnit);
       this->ShadowTexUnit=-1;
@@ -817,9 +819,11 @@ int CustomDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     {
     if(layer==1)
       {
-    // allocate texture units.
+          vtkOpenGLRenderWindow *context
+              = vtkOpenGLRenderWindow::SafeDownCast(this->Prog->GetContext());
+          // allocate texture units.
       vtkTextureUnitManager *m=
-        this->Prog->GetContext()->GetTextureUnitManager();
+        context->GetTextureUnitManager();
       this->ShadowTexUnit=m->Allocate();
       if(this->ShadowTexUnit==-1)
         {

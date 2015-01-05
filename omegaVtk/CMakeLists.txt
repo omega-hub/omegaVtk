@@ -40,5 +40,5 @@ ADD_LIBRARY( omegaVtk SHARED ${srcs} ${headers})
 TARGET_LINK_LIBRARIES( omegaVtk 
     omega 
     omegaToolkit
-    vtkRendering
+    ${VTK_LIBRARIES}
     )

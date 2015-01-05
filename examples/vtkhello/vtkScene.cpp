@@ -41,66 +41,66 @@ using namespace omegaVtk;
 class VtkScene: public EngineModule
 {
 public:
-	VtkScene();
-	virtual void initialize();
+    VtkScene();
+    virtual void initialize();
 
 private:
-	VtkModule* myVtkModule;
-	SceneNode* mySceneNode;
-	//DefaultMouseInteractor* myMouseInteractor;
-	vtkSphereSource* mySphere;
+    VtkModule* myVtkModule;
+    SceneNode* mySceneNode;
+    //DefaultMouseInteractor* myMouseInteractor;
+    vtkSphereSource* mySphere;
 
-	vtkPolyDataMapper* myPolyDataMapper;
-	vtkActor* myActor;
+    vtkPolyDataMapper* myPolyDataMapper;
+    vtkActor* myActor;
 
-	// Client objecs.
-	//RendererObject<vtkPolyDataMapper*> myPolyDataMapper;
-	//RendererObject<vtkActor*> myActor;
+    // Client objecs.
+    //RendererObject<vtkPolyDataMapper*> myPolyDataMapper;
+    //RendererObject<vtkActor*> myActor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 VtkScene::VtkScene(): EngineModule("VtkScene")
 {
-	// Create and register the omegalib vtk module.
-	myVtkModule = new VtkModule();
-	ModuleServices::addModule(myVtkModule);
+    // Create and register the omegalib vtk module.
+    myVtkModule = new VtkModule();
+    ModuleServices::addModule(myVtkModule);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void VtkScene::initialize()
 {
-	// As simple as it gets: create a sphere in vtk.
-	mySphere = vtkSphereSource::New(); 
-	mySphere->SetRadius(0.20); 
-	mySphere->SetThetaResolution(18); 
-	mySphere->SetPhiResolution(18);
+    // As simple as it gets: create a sphere in vtk.
+    mySphere = vtkSphereSource::New(); 
+    mySphere->SetRadius(0.20); 
+    mySphere->SetThetaResolution(18); 
+    mySphere->SetPhiResolution(18);
 
-	// Create an omegalib scene node. We will attach our vtk objects to it.
-	mySceneNode = new SceneNode(getEngine(), "vtkRoot");
-	mySceneNode->setPosition(0, 0, -1);
-	mySceneNode->setBoundingBoxVisible(true);
-	getEngine()->getScene()->addChild(mySceneNode);
+    // Create an omegalib scene node. We will attach our vtk objects to it.
+    mySceneNode = new SceneNode(getEngine(), "vtkRoot");
+    mySceneNode->setPosition(0, 0, -1);
+    mySceneNode->setBoundingBoxVisible(true);
+    getEngine()->getScene()->addChild(mySceneNode);
 
-	// Create a mouse interactor and associate it with our scene node.
-	//myMouseInteractor = new DefaultMouseInteractor();
-	//myMouseInteractor->setSceneNode(mySceneNode);
-	//ModuleServices::addModule(myMouseInteractor);
+    // Create a mouse interactor and associate it with our scene node.
+    //myMouseInteractor = new DefaultMouseInteractor();
+    //myMouseInteractor->setSceneNode(mySceneNode);
+    //ModuleServices::addModule(myMouseInteractor);
 
-	myPolyDataMapper = vtkPolyDataMapper::New();
-	myPolyDataMapper->SetInput(mySphere->GetOutput());
-	myActor = vtkActor::New(); 
-	myActor->SetMapper(myPolyDataMapper); 
-	myActor->GetProperty()->SetColor(0,0,1);
+    myPolyDataMapper = vtkPolyDataMapper::New();
+    myPolyDataMapper->SetInputConnection(mySphere->GetOutputPort());
+    myActor = vtkActor::New(); 
+    myActor->SetMapper(myPolyDataMapper); 
+    myActor->GetProperty()->SetColor(0,0,1);
 
-	myVtkModule->attachProp(myActor, mySceneNode);
-	// Setup the camera
-	getEngine()->getDefaultCamera()->focusOn(getEngine()->getScene());
+    myVtkModule->attachProp(myActor, mySceneNode);
+    // Setup the camera
+    getEngine()->getDefaultCamera()->focusOn(getEngine()->getScene());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Application entry point
 int main(int argc, char** argv)
 {
-	Application<VtkScene> app("vtkhello");
-	return omain(app, argc, argv);
+    Application<VtkScene> app("vtkhello");
+    return omain(app, argc, argv);
 }
