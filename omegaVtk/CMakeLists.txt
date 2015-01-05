@@ -1,6 +1,6 @@
-ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS -DOVTK_EXPORTING -DVTK_LIBRARY_DIR="${VTK_LIBRARY_DIRS}" -DVTK_PYTHON_DIR="${VTK_LIBRARY_DIRS}/../Wrapping/Python")
+add_definitions( -D_CRT_SECURE_NO_WARNINGS -DOVTK_EXPORTING -DVTK_LIBRARY_DIR="${VTK_DIR}" -DVTK_PYTHON_DIR="${VTK_DIR}/Wrapping/Python")
 
-SET( srcs 
+set( srcs 
         vtkGenericOpenGLRenderWindow.cpp
         CustomDepthPeelingPass.cpp
         VtkModule.cpp
@@ -9,13 +9,13 @@ SET( srcs
         )
         
 if(OMEGA_USE_PYTHON)
-SET( srcs ${srcs}
+set( srcs ${srcs}
         #PyVtk.cpp
         omegaVtkPythonApi.cpp
         )
 endif()
         
-SET( headers 
+set( headers 
         # omega
         CustomDepthPeelingPass.h
         ovtkbase.h
@@ -29,16 +29,28 @@ SET( headers
         omegaVtkPythonApi.h
         ) 
         
-SOURCE_GROUP(omegaVtk REGULAR_EXPRESSION omegaVtk/)		
+source_group(omegaVtk REGULAR_EXPRESSION omegaVtk/)		
 
 ###############################################################################
 # Setup compile info
-ADD_LIBRARY( omegaVtk SHARED ${srcs} ${headers})
+add_library(omegaVtk SHARED ${srcs} ${headers})
+add_library(omegaVtk_loader SHARED omegaVtk_loader.cpp)
+target_link_libraries(omegaVtk_loader omegaVtk)
+
 
 ###############################################################################
 # Setup link info.
-TARGET_LINK_LIBRARIES( omegaVtk 
+target_link_libraries( omegaVtk 
     omega 
     omegaToolkit
     ${VTK_LIBRARIES}
     )
+
+set_target_properties(omegaVtk_loader PROPERTIES OUTPUT_NAME "omegaVtk" IMPORT_PREFIX "module_" PREFIX "")
+if(WIN32)
+    set_target_properties(omegaVtk_loader PROPERTIES FOLDER modules SUFFIX ".pyd" PDB_NAME "omegaVtk_loader")
+    set_target_properties(omegaVtk PROPERTIES FOLDER modules)
+else()
+    set_target_properties(omegaVtk_loader PROPERTIES SUFFIX ".so")
+endif()
+    

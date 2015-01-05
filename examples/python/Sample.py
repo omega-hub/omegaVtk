@@ -19,7 +19,7 @@ sample.SetSampleDimensions(50,50,50)
 sample.SetImplicitFunction(quadric)
 
 contours = vtk.vtkContourFilter()
-contours.SetInput(sample.GetOutput())
+contours.SetInputConnection(sample.GetOutputPort())
 contours.GenerateValues(6, 0.0, 2)
 
 normals = vtk.vtkPolyDataNormals()
@@ -27,7 +27,7 @@ normals.SetInputConnection(contours.GetOutputPort())
 normals.SetFeatureAngle(270.0)
 
 contMapper = vtk.vtkPolyDataMapper()
-contMapper.SetInput(normals.GetOutput())
+contMapper.SetInputConnection(normals.GetOutputPort())
 contMapper.SetScalarRange(0.0, 1.2)
 contMapper.SetScalarVisibility(1)
 actor = vtk.vtkActor()
